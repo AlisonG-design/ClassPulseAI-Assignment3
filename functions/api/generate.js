@@ -2,7 +2,7 @@
 /*
   ClassPulseAI — Assignment 3
   Secure server-side LLM API connection
-
+// Deployment verification after syntax correction
   This file runs as a Cloudflare Pages Function.
   Never put an API key directly into this file.
 */
