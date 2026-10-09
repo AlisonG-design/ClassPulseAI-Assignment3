@@ -229,3 +229,4 @@ export async function onRequestPost(context) {
     );
   }
 }
+console.error("ClassPulseAI API error:", error);
