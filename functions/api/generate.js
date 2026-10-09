@@ -218,15 +218,15 @@ export async function onRequestPost(context) {
       }
     );
 
-  } catch (error) {
-    return Response.json(
-      {
-        error:
-          "Unable to generate the plan. " +
-          "Please check the server configuration."
-      },
-      { status: 502 }
-    );
-  }
+} catch (error) {
+  console.error("ClassPulseAI API error:", error);
+
+  return Response.json(
+    {
+      error:
+        "Unable to generate the plan. " +
+        "Please check the server configuration."
+    },
+    { status: 502 }
+  );
 }
-console.error("ClassPulseAI API error:", error);
