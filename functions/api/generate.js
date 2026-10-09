@@ -191,7 +191,19 @@ export async function onRequestPost(context) {
         10. Progress Monitoring
         11. Information Gaps
         12. Privacy and Human-Review Notes
+For each section, if the observations do not provide
+enough evidence, state "Insufficient information provided."
 
+For Measurable Goal Development, do not invent numerical
+targets. If the baseline is incomplete, explain what
+additional measurements are necessary before an educator
+can establish a goal.
+
+If all baseline fields are completed, acknowledge them
+and check whether they describe the same behavior.
+
+Connect progress-monitoring recommendations to the
+documented measurement type when one is provided.
         Explain uncertainties.
         Do not fill gaps with invented information.
         If an information review is included, use it
