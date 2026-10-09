@@ -1,0 +1,334 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ClassPulseAI — Assignment 3</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #f2f6f9;
+      color: #243746;
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+
+    header {
+      background: #274c5e;
+      color: white;
+      padding: 28px 20px;
+      text-align: center;
+    }
+
+    header h1 { margin: 0; }
+    header p { margin: 8px 0 0; }
+
+    main {
+      max-width: 850px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 22px;
+      box-shadow: 0 2px 8px #00000012;
+    }
+
+    .notice {
+      background: #eaf2f8;
+      padding: 14px;
+      border-left: 5px solid #2f6f8f;
+      margin-bottom: 18px;
+    }
+
+    .warning {
+      background: #fff5df;
+      border-left-color: #b07824;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin: 16px 0 6px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 11px;
+      font: inherit;
+      border: 1px solid #9fb3c8;
+      border-radius: 6px;
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 18px;
+    }
+
+    button {
+      background: #2f6f8f;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 13px 20px;
+      font: inherit;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 22px;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    :focus-visible {
+      outline: 3px solid #84b6d3;
+      outline-offset: 2px;
+    }
+
+    .error {
+      color: #a52727;
+      font-weight: bold;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-family: inherit;
+      line-height: 1.65;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      color: #52606d;
+    }
+
+    @media (max-width: 650px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>ClassPulseAI</h1>
+  <p>Assignment 3 — LLM-Assisted Behavior-Support Planning Tool</p>
+</header>
+
+<main>
+  <section class="card">
+    <div class="notice">
+      <strong>Purpose:</strong>
+      This application helps educators prepare draft behavior-support
+      plans using an LLM API. All recommendations require educator review.
+    </div>
+
+    <div class="notice warning">
+      <strong>Privacy reminder:</strong>
+      Use fictional or fully de-identified observations only.
+      Do not enter student names, identification numbers,
+      diagnoses, or sensitive student records.
+    </div>
+
+    <h2>Enter De-Identified Observation Information</h2>
+
+    <form id="supportForm">
+      <label for="version">Choose application version</label>
+      <select id="version">
+        <option value="1">Version 1 — Single LLM Request</option>
+        <option value="2">Version 2 — Two-Step LLM Workflow</option>
+      </select>
+
+      <label for="grade">Grade level *</label>
+      <input id="grade" required placeholder="Example: Grade 6">
+
+      <label for="behavior">Observable behavior *</label>
+      <textarea id="behavior" required
+        placeholder="Describe what can be seen or heard."></textarea>
+
+      <h3>Baseline Information</h3>
+
+      <div class="grid">
+        <div>
+          <label for="baselineBehavior">Behavior being measured</label>
+          <input id="baselineBehavior">
+        </div>
+
+        <div>
+          <label for="measurementType">Measurement type</label>
+          <select id="measurementType">
+            <option value="">Not provided</option>
+            <option>Frequency</option>
+            <option>Duration</option>
+            <option>Occurrence / non-occurrence</option>
+            <option>Percentage of opportunities</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="observedValue">Observed value</label>
+          <input id="observedValue" placeholder="Example: 3–5 times">
+        </div>
+
+        <div>
+          <label for="observationPeriod">Observation period</label>
+          <input id="observationPeriod"
+            placeholder="Example: One 45-minute class">
+        </div>
+      </div>
+
+      <label for="patterns">Documented situations or patterns</label>
+      <textarea id="patterns"></textarea>
+
+      <label for="strengths">Student strengths or interests</label>
+      <textarea id="strengths"></textarea>
+
+      <label for="strategies">Current strategies</label>
+      <textarea id="strategies"></textarea>
+
+      <label for="desired">Desired behavior *</label>
+      <textarea id="desired" required></textarea>
+
+      <p id="error" class="error" role="alert" hidden></p>
+
+      <button id="generateButton" type="submit">
+        Generate Draft Support Plan
+      </button>
+    </form>
+  </section>
+
+  <section id="output" class="card" hidden aria-live="polite">
+    <h2 id="outputHeading" tabindex="-1">
+      Draft Behavior-Support Plan
+    </h2>
+
+    <p id="versionDetails"></p>
+
+    <div id="reviewSection" hidden>
+      <h3>Step 1: Information Review</h3>
+      <pre id="reviewText"></pre>
+    </div>
+
+    <h3>Generated Recommendations</h3>
+    <pre id="planText"></pre>
+
+    <div class="notice warning">
+      AI-generated recommendations must be checked by an educator.
+      Do not assume that hypotheses are confirmed explanations.
+      Do not use invented baseline measurements or goals.
+    </div>
+  </section>
+</main>
+
+<footer>
+  ClassPulseAI — Applied Assignment 3
+  <p>Educational demonstration · Human review required</p>
+</footer>
+
+<script>
+  const form = document.getElementById("supportForm");
+  const output = document.getElementById("output");
+  const error = document.getElementById("error");
+  const button = document.getElementById("generateButton");
+
+  const fieldNames = [
+    "grade",
+    "behavior",
+    "baselineBehavior",
+    "measurementType",
+    "observedValue",
+    "observationPeriod",
+    "patterns",
+    "strengths",
+    "strategies",
+    "desired"
+  ];
+
+  form.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    error.hidden = true;
+    error.textContent = "";
+    output.hidden = true;
+
+    const input = {};
+
+    fieldNames.forEach(function(name) {
+      input[name] = document.getElementById(name).value.trim();
+    });
+
+    for (const name of ["grade", "behavior", "desired"]) {
+      if (!input[name]) {
+        error.textContent = "Please complete all required fields.";
+        error.hidden = false;
+        document.getElementById(name).focus();
+        return;
+      }
+    }
+
+    button.disabled = true;
+    button.textContent = "Generating plan...";
+
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          version: document.getElementById("version").value,
+          input: input
+        })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.error || "The API request could not be completed."
+        );
+      }
+
+      const hasReview = Boolean(result.review);
+
+      document.getElementById("reviewSection").hidden = !hasReview;
+      document.getElementById("reviewText").textContent =
+        result.review || "";
+
+      document.getElementById("planText").textContent =
+        result.plan || "No plan was returned.";
+
+      document.getElementById("versionDetails").textContent =
+        "Version " + result.version +
+        " — " + result.apiCalls + " LLM API request(s)";
+
+      output.hidden = false;
+      document.getElementById("outputHeading").focus();
+
+    } catch (problem) {
+      error.textContent = problem.message;
+      error.hidden = false;
+
+    } finally {
+      button.disabled = false;
+      button.textContent = "Generate Draft Support Plan";
+    }
+  });
+</script>
+</body>
+</html>
